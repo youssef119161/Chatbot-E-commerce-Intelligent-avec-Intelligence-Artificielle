@@ -1,0 +1,78 @@
+<!-- Navbar de la boutique e-commerce -->
+<nav class="navbar">
+  <div class="navbar-container">
+
+    <!-- Logo et nom de la boutique -->
+    <div class="navbar-brand">
+      <span class="logo">🛍️</span>
+      <h1 class="brand-name">Ma Boutique</h1>
+    </div>
+
+    <!-- Menu de navigation -->
+    <div class="navbar-menu">
+      <a href="#" class="nav-link">Accueil</a>
+      <a href="#" class="nav-link">Produits</a>
+      <a href="#" class="nav-link">Catégories</a>
+      <a href="#" class="nav-link">Contact</a>
+    </div>
+
+    <!-- Actions utilisateur -->
+    <div class="navbar-actions">
+
+      <!-- Bouton Chatbot IA -->
+      <button class="chatbot-button" (click)="onOpenChatbot()" title="Facilite la recherche avec l'IA">
+        <span class="chatbot-icon">🤖</span>
+        <span class="chatbot-text">Facilite la recherche avec l'IA</span>
+      </button>
+
+      <!-- Panier avec dropdown -->
+      <div class="cart-container">
+        <button class="cart-button" (click)="toggleCartDropdown()" title="Mon panier">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+        </button>
+
+        <!-- Dropdown du panier -->
+        <div class="cart-dropdown" *ngIf="showCartDropdown" (click)="$event.stopPropagation()">
+          <div class="cart-header">
+            <h3>🛒 Mon Panier</h3>
+            <button class="close-dropdown" (click)="toggleCartDropdown()">✕</button>
+          </div>
+
+          <div class="cart-content" *ngIf="cartItemCount > 0; else emptyCart">
+            <div class="cart-items">
+              <div *ngFor="let item of (cartService.cart$ | async)?.items" class="cart-item">
+                <span class="item-name">{{ item.product.name }}</span>
+                <span class="item-quantity">x{{ item.quantity }}</span>
+                <span class="item-price">{{ item.product.price * item.quantity }} {{ item.product.currency }}</span>
+              </div>
+            </div>
+
+            <div class="cart-total">
+              <strong>Total: {{ (cartService.cart$ | async)?.totalPrice }} DT</strong>
+            </div>
+
+            <div class="cart-actions">
+              <button class="clear-cart-btn" (click)="clearCart()">🗑️ Vider</button>
+              <button class="checkout-btn">💳 Commander</button>
+            </div>
+          </div>
+
+          <ng-template #emptyCart>
+            <div class="empty-cart">
+              <p>🛒 Votre panier est vide</p>
+              <p>Utilisez notre chatbot IA pour trouver des produits !</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Profil utilisateur -->
+      <button class="profile-button" title="Mon compte">
+        <span class="profile-icon">👤</span>
+      </button>
+
+    </div>
+
+  </div>
+</nav>

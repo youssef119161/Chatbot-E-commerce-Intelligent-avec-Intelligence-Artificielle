@@ -1,0 +1,127 @@
+<!-- Catalogue de produits -->
+<div class="catalog-container">
+
+  <!-- En-tête du catalogue -->
+  <div class="catalog-header">
+    <h2>🛍️ Notre Catalogue</h2>
+    <p>Découvrez notre sélection de produits ou utilisez notre IA pour une recherche personnalisée !</p>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <h3>Filtres</h3>
+
+    <div class="filters-row">
+      <!-- Filtre par catégorie -->
+      <div class="filter-group">
+        <label>Catégories :</label>
+        <div class="filter-buttons">
+          <button *ngFor="let category of categories" class="filter-btn" (click)="filterByCategory(category)">
+            {{ category }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtre par couleur -->
+      <div class="filter-group">
+        <label>Couleurs :</label>
+        <div class="filter-buttons">
+          <button *ngFor="let color of colors" class="filter-btn color-btn" [style.background-color]="color"
+            (click)="filterByColor(color)" [title]="color">
+            {{ color }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Bouton reset -->
+      <button class="reset-btn" (click)="clearFilters()">
+        🔄 Tous les produits
+      </button>
+    </div>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Chargement des produits...</p>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="error-message">
+    <p>❌ {{ error }}</p>
+    <button (click)="loadProducts()" class="retry-btn">Réessayer</button>
+  </div>
+
+  <!-- Grille de produits -->
+  <div *ngIf="!loading && !error" class="products-grid">
+
+    <!-- Message si aucun produit -->
+    <div *ngIf="products.length === 0" class="no-products">
+      <p>Aucun produit trouvé. Essayez d'autres filtres ou utilisez notre chatbot IA !</p>
+    </div>
+
+    <!-- Carte produit -->
+    <div *ngFor="let product of products" class="product-card">
+
+      <!-- Image du produit -->
+      <div class="product-image">
+        <img [src]="product.image" [alt]="product.name" class="product-img" (error)="onImageError($event, product)"
+          loading="lazy">
+
+        <div class="image-placeholder" *ngIf="product.imageError">
+          <span class="product-emoji">
+            {{ product.category === 'accessoires' ? '👒' :
+            product.category === 'bijoux' ? '💎' :
+            product.category === 'vêtements' ? '👕' :
+            product.category === 'jouets' ? '🧸' :
+            product.category === 'loisirs' ? '📚' : '🛍️' }}
+          </span>
+        </div>
+
+        <!-- Badge stock -->
+        <div class="stock-badge" [class.low-stock]="product.stock < 5">
+          📦 {{ product.stock }}
+        </div>
+      </div>
+
+      <!-- Informations produit -->
+      <div class="product-info">
+        <h3 class="product-name">{{ product.name }}</h3>
+        <p class="product-description">{{ product.description }}</p>
+
+        <!-- Tags -->
+        <div class="product-tags">
+          <span *ngFor="let tag of product.tags" class="tag">
+            {{ tag }}
+          </span>
+        </div>
+
+        <!-- Détails -->
+        <div class="product-details">
+          <span class="color-indicator" [style.background-color]="product.color">
+            🎨 {{ product.color }}
+          </span>
+          <span class="category">📂 {{ product.category }}</span>
+        </div>
+
+        <!-- Prix et action -->
+        <div class="product-footer">
+          <div class="price">
+            <span class="amount">{{ product.price }}</span>
+            <span class="currency">{{ product.currency }}</span>
+          </div>
+
+          <button class="add-to-cart-btn" (click)="addToCart(product)" [disabled]="product.stock === 0"
+            [class.in-cart]="isInCart(product.id)">
+            <span *ngIf="product.stock > 0 && !isInCart(product.id)">🛒 Ajouter</span>
+            <span *ngIf="product.stock > 0 && isInCart(product.id)">✅ Dans le panier ({{ getCartQuantity(product.id)
+              }})</span>
+            <span *ngIf="product.stock === 0">❌ Rupture</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

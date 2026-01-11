@@ -1,32 +1,20 @@
-# Dockerfile pour le Frontend Angular
-FROM node:18-alpine as build
+# Dockerfile pour le Backend FastAPI
+FROM python:3.11-slim
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier package.json et package-lock.json
-COPY package*.json ./
+# Copier les requirements
+COPY requirements.txt .
 
-# Installer les dépendances
-RUN npm ci
+# Installer les dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le code source
 COPY . .
 
-# Build de l'application
-RUN npm run build
-
-# Stage de production avec Nginx
-FROM nginx:alpine
-
-# Copier les fichiers buildés
-COPY --from=build /app/dist/* /usr/share/nginx/html/
-
-# Copier la configuration Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
-
 # Exposer le port
-EXPOSE 80
+EXPOSE 8000
 
-# Démarrer Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Commande de démarrage
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

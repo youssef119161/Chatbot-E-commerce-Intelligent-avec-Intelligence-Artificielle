@@ -1,0 +1,135 @@
+<!-- Interface utilisateur du chatbot e-commerce -->
+<div class="chatbot-container" [class.hidden]="!isVisible">
+
+  <!-- En-tête du chatbot -->
+  <div class="chatbot-header">
+    <h2>🤖 Assistant Shopping IA</h2>
+    <div class="header-actions">
+      <div class="status-indicator">
+        <span class="status-dot" [class.connected]="isApiConnected" [class.disconnected]="!isApiConnected"></span>
+        <span class="status-text">{{ apiStatus }}</span>
+        <button class="test-btn" (click)="testConnection()" [disabled]="apiStatus === 'Test en cours...'">
+          🔄
+        </button>
+      </div>
+      <button class="close-btn" (click)="closeChatbot()" title="Fermer">
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Zone de messages -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages-list">
+
+      <!-- Message individuel -->
+      <div *ngFor="let message of messages" class="message" [class.user-message]="message.isUser"
+        [class.bot-message]="!message.isUser" [class.error-message]="message.isError">
+
+        <!-- Avatar -->
+        <div class="message-avatar">
+          <span *ngIf="message.isUser">👤</span>
+          <span *ngIf="!message.isUser && !message.isError">🤖</span>
+          <span *ngIf="message.isError">⚠️</span>
+        </div>
+
+        <!-- Contenu du message -->
+        <div class="message-content">
+          <div class="message-text" [innerHTML]="message.content | nl2br"></div>
+
+          <!-- Produits trouvés -->
+          <div *ngIf="message.products && message.products.length > 0" class="products-section">
+            <h4>🛍️ Produits trouvés :</h4>
+            <div class="products-grid">
+              <div *ngFor="let product of message.products" class="product-mini-card">
+
+                <!-- Image produit -->
+                <div class="product-mini-image">
+                  <img [src]="product.image" [alt]="product.name" class="product-img"
+                    (error)="onImageError($event, product)" loading="lazy">
+                  <div class="product-fallback" *ngIf="product.imageError">
+                    <span class="product-emoji">
+                      {{ product.category === 'accessoires' ? '👒' :
+                      product.category === 'bijoux' ? '💎' :
+                      product.category === 'vêtements' ? '👕' :
+                      product.category === 'jouets' ? '🧸' :
+                      product.category === 'loisirs' ? '📚' : '🛍️' }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Info produit -->
+                <div class="product-mini-info">
+                  <h5>{{ product.name }}</h5>
+                  <p class="product-mini-price">{{ product.price }} {{ product.currency }}</p>
+                  <p class="product-mini-color">🎨 {{ product.color }}</p>
+                  <button class="mini-add-btn" (click)="addToCart(product)" [disabled]="product.stock === 0">
+                    <span *ngIf="product.stock > 0">🛒</span>
+                    <span *ngIf="product.stock === 0">❌</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <div class="message-time">{{ formatTime(message.timestamp) }}</div>
+        </div>
+      </div>
+
+      <!-- Indicateur de chargement -->
+      <div *ngIf="isLoading" class="message bot-message loading-message">
+        <div class="message-avatar">
+          <span>🤖</span>
+        </div>
+        <div class="message-content">
+          <div class="message-text">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            Recherche de produits en cours...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Zone de saisie -->
+  <div class="input-container">
+    <div class="input-wrapper">
+      <textarea [(ngModel)]="currentMessage" (keypress)="onKeyPress($event)"
+        placeholder="Ex: 'casquette rouge' ou 'cadeau fille bleu 40 DT'..." class="message-input" rows="2"
+        [disabled]="isLoading || !isApiConnected">
+      </textarea>
+
+      <button (click)="sendMessage()" [disabled]="!currentMessage.trim() || isLoading || !isApiConnected"
+        class="send-button">
+        <span *ngIf="!isLoading">🔍</span>
+        <span *ngIf="isLoading" class="spinner">⏳</span>
+      </button>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="action-buttons">
+      <button (click)="clearChat()" class="clear-button">
+        🗑️ Effacer
+      </button>
+
+      <small class="help-text">
+        💡 Décrivez ce que vous cherchez : couleur, type, budget, pour qui...
+      </small>
+    </div>
+  </div>
+
+  <!-- Informations de debug (visible en développement) -->
+  <div class="debug-info" *ngIf="!isApiConnected">
+    <h4>🔧 Informations de Debug</h4>
+    <p><strong>API URL:</strong> http://localhost:8000</p>
+    <p><strong>Status:</strong> {{ apiStatus }}</p>
+    <p><strong>Solution:</strong> Démarrez le backend avec <code>uvicorn main:app --reload</code></p>
+  </div>
+
+</div>

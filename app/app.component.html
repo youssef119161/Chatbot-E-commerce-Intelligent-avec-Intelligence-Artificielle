@@ -1,0 +1,129 @@
+<!--
+  Application principale de la Boutique E-commerce avec Chatbot IA
+  Projet universitaire - FastAPI + Angular
+-->
+
+<div class="app-container">
+  
+  <!-- Navbar de la boutique -->
+  <app-navbar (openChatbot)="showChatbot()"></app-navbar>
+
+  <!-- Contenu principal -->
+  <main class="main-content">
+    
+    <!-- Catalogue de produits -->
+    <app-product-catalog></app-product-catalog>
+
+  </main>
+
+  <!-- Chatbot en overlay -->
+  <div class="chatbot-overlay" [class.visible]="isChatbotVisible" (click)="hideChatbot()">
+    <div class="chatbot-modal" (click)="$event.stopPropagation()">
+      <app-chatbot 
+        [isVisible]="isChatbotVisible"
+        (close)="hideChatbot()">
+      </app-chatbot>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .app-container {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f8f9fa;
+  }
+
+  .main-content {
+    min-height: calc(100vh - 80px);
+  }
+
+  /* Overlay du chatbot */
+  .chatbot-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .chatbot-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .chatbot-modal {
+    width: 100%;
+    max-width: 900px;
+    height: 90vh;
+    max-height: 700px;
+    min-height: 500px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    background: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .chatbot-overlay.visible .chatbot-modal {
+    transform: scale(1);
+  }
+
+  /* S'assurer que le chatbot prend toute la hauteur du modal */
+  .chatbot-modal app-chatbot {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .chatbot-overlay {
+      padding: 10px;
+    }
+    
+    .chatbot-modal {
+      width: 100%;
+      height: 95vh;
+      max-height: none;
+      border-radius: 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .chatbot-overlay {
+      padding: 5px;
+    }
+    
+    .chatbot-modal {
+      height: 98vh;
+      border-radius: 5px;
+    }
+  }
+</style>

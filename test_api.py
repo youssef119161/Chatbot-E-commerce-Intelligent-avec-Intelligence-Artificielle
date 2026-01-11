@@ -1,57 +1,68 @@
 #!/usr/bin/env python3
 """
-Test rapide de l'API Backend
+Quick API test for the Intelligent Chatbot System
 """
 
 import requests
 import json
 
 def test_api():
+    """Test the intelligent chatbot API"""
+    
     base_url = "http://localhost:8000"
     
-    print("🧪 Test de l'API Backend...")
+    print("🧪 Testing Intelligent Chatbot API")
+    print("=" * 40)
     
+    # Test 1: Health check
+    print("\n1. Health Check:")
     try:
-        # Test health
-        print("📡 Test /health...")
-        response = requests.get(f"{base_url}/health", timeout=5)
-        if response.status_code == 200:
-            print("✅ Backend connecté !")
-            print(f"   Réponse: {response.json()}")
-        else:
-            print(f"❌ Erreur: {response.status_code}")
-            return False
-            
-        # Test root
-        print("📡 Test /...")
-        response = requests.get(f"{base_url}/", timeout=5)
-        if response.status_code == 200:
-            print("✅ Endpoint racine OK !")
-        else:
-            print(f"❌ Erreur: {response.status_code}")
-            
-        # Test chat
-        print("📡 Test /chat...")
-        payload = {"message": "Bonjour", "user_id": "test"}
-        response = requests.post(f"{base_url}/chat", json=payload, timeout=10)
-        if response.status_code == 200:
-            print("✅ Chatbot répond !")
-            data = response.json()
-            print(f"   Réponse: {data['response'][:50]}...")
-        else:
-            print(f"❌ Erreur chat: {response.status_code}")
-            
-        return True
-        
-    except requests.exceptions.ConnectionError:
-        print("❌ Impossible de se connecter au backend !")
-        print("💡 Vérifiez que le serveur est démarré avec:")
-        print("   cd backend")
-        print("   uvicorn main:app --reload")
-        return False
+        response = requests.get(f"{base_url}/health")
+        print(f"   Status: {response.status_code}")
+        print(f"   Response: {response.json()}")
     except Exception as e:
-        print(f"❌ Erreur: {e}")
-        return False
+        print(f"   Error: {e}")
+    
+    # Test 2: Chat interaction
+    print("\n2. Chat Interaction:")
+    try:
+        chat_data = {
+            "message": "Bonjour, je cherche un cadeau pour ma fille de 8 ans",
+            "user_id": "test_user_api"
+        }
+        response = requests.post(f"{base_url}/chat", json=chat_data)
+        print(f"   Status: {response.status_code}")
+        result = response.json()
+        print(f"   Response: {result['response'][:100]}...")
+        print(f"   Confidence: {result['confidence']}")
+        print(f"   Intents: {result['detected_intents']}")
+        print(f"   Products: {len(result['products'])}")
+    except Exception as e:
+        print(f"   Error: {e}")
+    
+    # Test 3: Intent testing
+    print("\n3. Intent Detection Test:")
+    try:
+        response = requests.get(f"{base_url}/intents/test", params={"message": "Je veux un sac rouge pas cher"})
+        print(f"   Status: {response.status_code}")
+        result = response.json()
+        print(f"   Primary Intent: {result['primary_intent']['intent']} ({result['primary_intent']['confidence']:.2f})")
+        print(f"   Keywords: {result['primary_intent']['matched_keywords']}")
+    except Exception as e:
+        print(f"   Error: {e}")
+    
+    # Test 4: System stats
+    print("\n4. System Statistics:")
+    try:
+        response = requests.get(f"{base_url}/stats")
+        print(f"   Status: {response.status_code}")
+        result = response.json()
+        print(f"   Memory Users: {result['system_stats']['conversation_memory']['total_users']}")
+        print(f"   Unknown Queries: {len(result['unknown_queries'])}")
+    except Exception as e:
+        print(f"   Error: {e}")
+    
+    print("\n✅ API Test Complete!")
 
 if __name__ == "__main__":
     test_api()
